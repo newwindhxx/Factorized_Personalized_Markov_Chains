@@ -7,6 +7,7 @@ Created on Thu Mar 25 13:08:25 2021
 
 import torch
 import numpy as np
+import torch.nn.functional as F
 
 class BPR_Loss(object):
     def __init__(self):    
@@ -14,7 +15,7 @@ class BPR_Loss(object):
         pass
         
     def __call__(self,positive_scores,negative_scores):
-        return torch.log( 1 + torch.exp(-positive_scores+negative_scores) ).sum()
+        return F.softplus(-(positive_scores - negative_scores)).mean()
     
 class Recall(object):
     def __init__(self,user_history,user_noclick,n_users,n_items,k=10):

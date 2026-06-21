@@ -9,13 +9,16 @@ import torch.nn as nn
 import torch
 
 class FPMC(nn.Module):
-    def __init__(self,n_users,n_items,k_UI=64,k_IL=64):
+    def __init__(self,n_users,n_items,k_UI=64,k_IL=64,mode="full"):
         super(FPMC, self).__init__()
         print("="*10,"Creating FPMC Model","="*10)
+        if mode not in {"mf", "fmc", "full"}:
+            raise ValueError("mode must be one of: 'mf', 'fmc', 'full'")
         self.n_users = n_users
         self.n_items = n_items
         self.k_UI = k_UI
         self.k_IL = k_IL
+        self.mode = mode
         
         self.IL = nn.Embedding(self.n_items,self.k_IL)
         self.LI = nn.Embedding(self.n_items,self.k_IL)
@@ -31,4 +34,8 @@ class FPMC(nn.Module):
         x_FMC = torch.sum( self.IL(iid) * self.LI(basket_prev) ,dim=1 ) / (self.k_IL**(1/2))
         
 
+        if self.mode == "mf":
+            return x_MF
+        if self.mode == "fmc":
+            return x_FMC
         return x_MF + x_FMC

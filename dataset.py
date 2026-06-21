@@ -28,10 +28,13 @@ class BPR_Dataset(Dataset):
         if torch.is_tensor(idx):
             idx=idx.tolist()  
             
-        uid,iid_prev,iid_next = self.train_tuples[idx]                
+        uid,iid_prev,iid_next = self.train_tuples[idx]
+        uid = int(uid)
+        iid_prev = int(iid_prev)
+        iid_next = int(iid_next)
         
         while True:
-            iid_negative = np.random.randint(0,self.n_items)
+            iid_negative = int(np.random.randint(0,self.n_items))
             #if len(set.intersection(set(iid_negative),set([iid_next]))) == 0:
             #    break
             if iid_negative != iid_next:

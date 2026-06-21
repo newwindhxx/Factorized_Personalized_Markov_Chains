@@ -7,7 +7,6 @@ Created on Thu Mar 25 13:06:41 2021
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 import os
 
@@ -28,13 +27,18 @@ class reset_df(object):
     
     def __init__(self):
         print("="*10,"Initialize Reset DataFrame Object","="*10)
-        self.item_enc = LabelEncoder()
-        self.user_enc = LabelEncoder()
+        self.item_classes_ = None
+        self.user_classes_ = None
         
     def fit_transform(self,df):
         print("="*10,"Resetting user ids and item ids in DataFrame","="*10)
-        df['item_id'] = self.item_enc.fit_transform(df['item_id'])
-        df['user_id'] = self.user_enc.fit_transform(df['user_id'])
+        df = df.copy()
+        item_codes, item_classes = pd.factorize(df['item_id'], sort=True)
+        user_codes, user_classes = pd.factorize(df['user_id'], sort=True)
+        df['item_id'] = item_codes
+        df['user_id'] = user_codes
+        self.item_classes_ = item_classes.to_numpy()
+        self.user_classes_ = user_classes.to_numpy()
         
         assert df.user_id.min() == 0
         assert df.item_id.min() == 0 
@@ -42,8 +46,9 @@ class reset_df(object):
         return df
     
     def inverse_transform(self,df):
-        df['item_id'] = self.item_enc.inverse_transform(df['item_id'])
-        df['user_id'] = self.user_enc.inverse_transform(df['user_id'])
+        df = df.copy()
+        df['item_id'] = self.item_classes_[df['item_id'].to_numpy()]
+        df['user_id'] = self.user_classes_[df['user_id'].to_numpy()]
         return df
     
 def create_user_history(df=None):

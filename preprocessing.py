@@ -13,8 +13,13 @@ import os
 def create_df(filename=None):
     
     print("="*10,"Creating DataFrame","="*10)
-    df = pd.read_csv(os.path.join(os.getcwd(),filename),sep='::',header=None)
-    df.columns= ['user_id','item_id','rating','timestamp']
+    records = []
+    with open(os.path.join(os.getcwd(),filename), "r", encoding="latin-1") as f:
+        for line in f:
+            user_id, item_id, rating, timestamp = line.rstrip("\n").split("::")
+            records.append((int(user_id), int(item_id), int(rating), int(timestamp)))
+
+    df = pd.DataFrame(records, columns=['user_id','item_id','rating','timestamp'])
     df.sort_values('timestamp',inplace=True)
     
     
